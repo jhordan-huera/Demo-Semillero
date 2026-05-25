@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import Calendar from '../components/Calendar';
+import ActivityModal from '../components/ActivityModal';
 
 export default function Dashboard() {
   const {
@@ -10,8 +12,11 @@ export default function Dashboard() {
     completedCount,
     totalActivities,
     teacherNote,
+    getActivity,
+    submitActivity,
   } = useApp();
   const navigate = useNavigate();
+  const [modalActivityId, setModalActivityId] = useState(null);
 
   const progress =
     totalActivities > 0
@@ -39,6 +44,10 @@ export default function Dashboard() {
         return 'Pendiente';
     }
   };
+
+  const openModal = (id) => setModalActivityId(id);
+  const closeModal = () => setModalActivityId(null);
+  const modalActivity = modalActivityId ? getActivity(modalActivityId) : null;
 
   return (
     <div className="dashboard-page page">
@@ -121,12 +130,12 @@ export default function Dashboard() {
         {/* Calendar */}
         <Calendar
           activities={activities}
-          onActivityClick={(id) => navigate(`/activity/${id}`)}
+          onActivityClick={(id) => openModal(id)}
         />
 
         {/* Activities Section */}
         <div className="section-header">
-          <h2 className="section-title">Actividades Asignadas</h2>
+          <h2 className="section-title">Actividades de la Semana</h2>
           <button
             className="btn-link"
             onClick={() => navigate('/performance')}
@@ -136,35 +145,89 @@ export default function Dashboard() {
         </div>
 
         <div className="activity-list">
-          {activities.map((activity) => (
-            <div
-              key={activity.id}
-              className={`activity-card ${getStatusClass(activity.status)}`}
-              onClick={() => navigate(`/activity/${activity.id}`)}
-            >
-              <div className="activity-card-header">
-                <div className="activity-card-icon">{activity.icon}</div>
-                <div className="activity-card-info">
-                  <div className="activity-card-title">{activity.title}</div>
-                  <div className="activity-card-subject">
-                    {activity.subject}
+          {(() => {
+            // Group activities by date
+            const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+            const parseDate = (str) => {
+              const parts = str.split(' ');
+              const day = parseInt(parts[0]);
+              const monthIdx = monthNames.indexOf(parts[1]);
+              const year = parseInt(parts[2]);
+              return new Date(year, monthIdx, day);
+            };
+
+            const sorted = [...activities].sort((a, b) => parseDate(a.deadline) - parseDate(b.deadline));
+
+            const groups = {};
+            sorted.forEach((act) => {
+              const key = act.deadline;
+              if (!groups[key]) groups[key] = [];
+              groups[key].push(act);
+            });
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            return Object.entries(groups).map(([dateStr, dayActivities]) => {
+              const date = parseDate(dateStr);
+              const dayName = dayNames[date.getDay()];
+              const isToday = date.getTime() === today.getTime();
+              const isPast = date < today;
+
+              return (
+                <div key={dateStr} className="day-group">
+                  <div className={`day-group-header${isToday ? ' day-group-header--today' : ''}${isPast ? ' day-group-header--past' : ''}`}>
+                    <div className="day-group-date">
+                      <span className="day-group-dayname">{dayName}</span>
+                      <span className="day-group-fulldate">{dateStr}</span>
+                    </div>
+                    {isToday && <span className="day-group-today-badge">Hoy</span>}
                   </div>
+                  {dayActivities.map((activity) => (
+                    <div
+                      key={activity.id}
+                      className={`activity-card ${getStatusClass(activity.status)}`}
+                      onClick={() => openModal(activity.id)}
+                    >
+                      <div className="activity-card-header">
+                        <div className="activity-card-icon">{activity.icon}</div>
+                        <div className="activity-card-info">
+                          <div className="activity-card-title">{activity.title}</div>
+                          <div className="activity-card-subject">
+                            {activity.subject}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="activity-card-footer">
+                        <span
+                          className={`status-badge ${activity.status === 'pending' ? 'pending' : activity.status === 'submitted' ? 'submitted' : 'graded'}`}
+                        >
+                          {getStatusLabel(activity.status)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-              <div className="activity-card-footer">
-                <span className="activity-card-deadline">
-                  📅 {activity.deadline}
-                </span>
-                <span
-                  className={`status-badge ${activity.status === 'pending' ? 'pending' : activity.status === 'submitted' ? 'submitted' : 'graded'}`}
-                >
-                  {getStatusLabel(activity.status)}
-                </span>
-              </div>
-            </div>
-          ))}
+              );
+            });
+          })()}
         </div>
       </div>
+
+      {/* Activity Modal */}
+      {modalActivity && (
+        <ActivityModal
+          activity={modalActivity}
+          onClose={closeModal}
+          onSubmitEvidence={(id, evalText, comment, file) => {
+            submitActivity(id, evalText, comment, file);
+            closeModal();
+          }}
+          childName={childName}
+        />
+      )}
     </div>
   );
 }

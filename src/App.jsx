@@ -6,6 +6,7 @@ import ActivityDetail from './pages/ActivityDetail';
 import SubmitEvidence from './pages/SubmitEvidence';
 import Performance from './pages/Performance';
 import Sidebar from './components/Sidebar';
+import MobileNav from './components/MobileNav';
 
 function ProtectedRoute({ children }) {
   const { isLoggedIn } = useApp();
@@ -66,6 +67,7 @@ function AppRoutes() {
         </Routes>
         <Toast />
       </main>
+      <MobileNav />
     </div>
   );
 }
