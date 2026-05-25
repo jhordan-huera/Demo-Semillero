@@ -6,7 +6,7 @@ export default function Login() {
   const [cedula, setCedula] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login } = useApp();
+  const { login, selectChild } = useApp();
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
@@ -20,7 +20,12 @@ export default function Login() {
 
     const result = login(cedula.trim(), password.trim());
     if (result.success) {
-      navigate('/dashboard');
+      if (result.children.length === 1) {
+        selectChild(result.children[0].id);
+        navigate('/dashboard');
+      } else {
+        navigate('/select-child');
+      }
     } else {
       setError(result.error);
     }
@@ -71,11 +76,11 @@ export default function Login() {
         </button>
 
         <div className="login-hint">
-          <strong>Demo</strong> — Usa estas credenciales:
+          <strong>Demo</strong> — Credenciales:
           <br />
-          Cédula: <strong>1234567890</strong> — Contraseña: <strong>padre123</strong>
+          Cédula: <strong>1234567890</strong> — Contraseña: <strong>padre123</strong> (2 hijos)
           <br />
-          Cédula: <strong>0987654321</strong> — Contraseña: <strong>padre456</strong>
+          Cédula: <strong>0987654321</strong> — Contraseña: <strong>padre456</strong> (1 hijo)
         </div>
       </form>
     </div>

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import Login from './pages/Login';
+import ChildSelector from './pages/ChildSelector';
 import Dashboard from './pages/Dashboard';
 import ActivityDetail from './pages/ActivityDetail';
 import SubmitEvidence from './pages/SubmitEvidence';
@@ -23,14 +24,23 @@ function Toast() {
 }
 
 function AppRoutes() {
-  const { isLoggedIn } = useApp();
+  const { isLoggedIn, selectedChildId } = useApp();
+  const showSidebar = isLoggedIn && selectedChildId;
 
   return (
-    <div className={`app-layout${isLoggedIn ? ' app-layout--with-sidebar' : ''}`}>
+    <div className={`app-layout${showSidebar ? ' app-layout--with-sidebar' : ''}`}>
       <Sidebar />
       <main className="app-main">
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route
+            path="/select-child"
+            element={
+              <ProtectedRoute>
+                <ChildSelector />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={

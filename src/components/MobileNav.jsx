@@ -2,11 +2,11 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 
 export default function MobileNav() {
-  const { isLoggedIn, logout } = useApp();
+  const { isLoggedIn, selectedChildId, childrenList, logout } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
 
-  if (!isLoggedIn) return null;
+  if (!isLoggedIn || !selectedChildId) return null;
 
   const isActive = (path) => location.pathname === path;
 
