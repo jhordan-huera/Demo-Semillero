@@ -3,9 +3,8 @@ import { AppProvider, useApp } from './context/AppContext';
 import Login from './pages/Login';
 import ChildSelector from './pages/ChildSelector';
 import Dashboard from './pages/Dashboard';
-import ActivityDetail from './pages/ActivityDetail';
-import SubmitEvidence from './pages/SubmitEvidence';
-import Performance from './pages/Performance';
+import Progress from './pages/Progress';
+import History from './pages/History';
 import Sidebar from './components/Sidebar';
 import MobileNav from './components/MobileNav';
 
@@ -50,26 +49,18 @@ function AppRoutes() {
             }
           />
           <Route
-            path="/activity/:id"
+            path="/progress"
             element={
               <ProtectedRoute>
-                <ActivityDetail />
+                <Progress />
               </ProtectedRoute>
             }
           />
           <Route
-            path="/submit/:id"
+            path="/history"
             element={
               <ProtectedRoute>
-                <SubmitEvidence />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/performance"
-            element={
-              <ProtectedRoute>
-                <Performance />
+                <History />
               </ProtectedRoute>
             }
           />

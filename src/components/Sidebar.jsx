@@ -21,7 +21,8 @@ export default function Sidebar() {
 
   const navItems = [
     { path: '/dashboard', icon: '🏠', label: 'Inicio' },
-    { path: '/performance', icon: '📊', label: 'Reporte' },
+    { path: '/progress', icon: '📊', label: 'Progreso' },
+    { path: '/history', icon: '📈', label: 'Historial' },
   ];
 
   return (

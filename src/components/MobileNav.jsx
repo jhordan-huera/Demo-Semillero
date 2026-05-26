@@ -25,11 +25,18 @@ export default function MobileNav() {
         <span className="mobile-nav-label">Inicio</span>
       </button>
       <button
-        className={`mobile-nav-item${isActive('/performance') ? ' mobile-nav-item--active' : ''}`}
-        onClick={() => navigate('/performance')}
+        className={`mobile-nav-item${isActive('/progress') ? ' mobile-nav-item--active' : ''}`}
+        onClick={() => navigate('/progress')}
       >
         <span className="mobile-nav-icon">📊</span>
-        <span className="mobile-nav-label">Reporte</span>
+        <span className="mobile-nav-label">Progreso</span>
+      </button>
+      <button
+        className={`mobile-nav-item${isActive('/history') ? ' mobile-nav-item--active' : ''}`}
+        onClick={() => navigate('/history')}
+      >
+        <span className="mobile-nav-icon">📈</span>
+        <span className="mobile-nav-label">Historial</span>
       </button>
       <button className="mobile-nav-item" onClick={handleLogout}>
         <span className="mobile-nav-icon">🚪</span>
