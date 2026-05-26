@@ -52,171 +52,73 @@ graph TB
 
 ---
 
-## 📊 Base de Datos — Modelo Entidad-Relación Completo
+## 📊 Base de Datos — Solo Módulo Familia
+
+> Solo las **3 tablas** que nosotros creamos y gestionamos.
 
 ```mermaid
 erDiagram
-    INSTITUTION ||--o{ TEACHER : "emplea"
-    INSTITUTION ||--o{ STUDENT_GROUP : "tiene"
-    TEACHER ||--o{ STUDENT_GROUP : "gestiona"
-    STUDENT_GROUP ||--o{ CHILD : "contiene"
     FAMILY_USER ||--o{ FAMILY_CHILD : "tiene"
     CHILD ||--o{ FAMILY_CHILD : "pertenece a"
-    UNIT ||--o{ ACTIVITY : "contiene"
-    STUDENT_GROUP ||--o{ UNIT : "asignada a"
-    CHILD ||--o{ EVALUATION : "evaluado en"
-    RUBRIC_CRITERIA ||--o{ EVALUATION : "criterio"
-    ACTIVITY ||--o{ EVALUATION : "evaluada en"
-    TEACHER ||--o{ EVALUATION : "registra"
     ACTIVITY ||--o{ HOMEWORK_STATUS : "seguimiento"
     CHILD ||--o{ HOMEWORK_STATUS : "realiza"
     FAMILY_USER ||--o{ HOMEWORK_STATUS : "marca"
 
-    INSTITUTION {
-        uuid id PK
-        varchar name "Centro Educativo"
-        varchar code UK
-        varchar logo_url
-        timestamp created_at
-    }
-
-    TEACHER {
-        uuid id PK
-        varchar name
-        varchar email UK
-        varchar password_hash
-        uuid institution_id FK
-        timestamp created_at
-    }
-
-    STUDENT_GROUP {
-        uuid id PK
-        varchar name "Ej: Inicial 2 - A"
-        uuid teacher_id FK
-        uuid institution_id FK
-        boolean active
-        timestamp created_at
-    }
-
-    CHILD {
-        uuid id PK
-        varchar name
-        int age
-        varchar avatar_emoji
-        varchar color
-        uuid group_id FK
-        timestamp created_at
-    }
-
     FAMILY_USER {
         uuid id PK
-        varchar cedula UK
-        varchar name
-        varchar email
-        varchar password_hash
-        varchar phone
+        varchar cedula UK "Cédula ecuatoriana"
+        varchar name "Nombre completo"
+        varchar email "Correo electrónico"
+        varchar password_hash "Bcrypt hash"
+        varchar phone "Teléfono"
         timestamp created_at
         timestamp updated_at
     }
 
     FAMILY_CHILD {
         uuid id PK
-        uuid family_user_id FK
-        uuid child_id FK
+        uuid family_user_id FK "→ family_user.id"
+        uuid child_id FK "→ child.id (externa)"
         varchar relationship "padre|madre|representante"
         timestamp created_at
     }
 
-    UNIT {
-        uuid id PK
-        varchar title "Ej: Mi cuerpo y yo"
-        varchar scope "Ej: Identidad y Autonomía"
-        text objectives
-        text skills
-        int planned_weeks
-        uuid group_id FK
-        varchar status "active|completed|upcoming"
-        timestamp created_at
-    }
-
-    RUBRIC_CRITERIA {
-        uuid id PK
-        varchar key "clasificacion|seriacion|..."
-        varchar name "Clasificación"
-        varchar icon "🧩"
-        text description
-        int display_order
-    }
-
-    ACTIVITY {
-        uuid id PK
-        uuid unit_id FK
-        varchar title
-        text description
-        varchar type "classroom|homework"
-        date deadline
-        timestamp created_at
-    }
-
-    EVALUATION {
-        uuid id PK
-        uuid child_id FK
-        uuid activity_id FK
-        uuid criteria_id FK
-        uuid teacher_id FK
-        varchar level "iniciado|en_proceso|logrado"
-        text observation
-        text support_actions
-        timestamp evaluated_at
-    }
-
     HOMEWORK_STATUS {
         uuid id PK
-        uuid activity_id FK
-        uuid child_id FK
-        uuid family_user_id FK
-        boolean completed
-        text comment
+        uuid activity_id FK "→ activity.id (externa)"
+        uuid child_id FK "→ child.id (externa)"
+        uuid family_user_id FK "→ family_user.id"
+        boolean completed "¿Fue realizada?"
+        text comment "Comentario breve del padre"
         timestamp completed_at
         timestamp created_at
     }
 ```
 
----
-
-## 🔗 Relaciones Explicadas
+### Relaciones de nuestras tablas
 
 | Relación | Tipo | Descripción |
 |----------|------|-------------|
-| `institution` → `teacher` | 1:N | Una institución tiene muchos docentes |
-| `institution` → `student_group` | 1:N | Una institución tiene muchos grupos |
-| `teacher` → `student_group` | 1:N | Un docente gestiona uno o más grupos |
-| `student_group` → `child` | 1:N | Un grupo contiene muchos niños |
-| `family_user` → `family_child` → `child` | N:M | Un padre puede tener N hijos (multi-tenant) |
-| `student_group` → `unit` | 1:N | Un grupo tiene unidades didácticas asignadas |
-| `unit` → `activity` | 1:N | Una unidad contiene múltiples actividades |
-| `activity` (type=homework) → `homework_status` | 1:N | Cada actividad de casa tiene un seguimiento por hijo |
-| `child` → `evaluation` | 1:N | Un niño tiene múltiples evaluaciones |
-| `rubric_criteria` → `evaluation` | 1:N | Cada evaluación es sobre un criterio específico |
-| `teacher` → `evaluation` | 1:N | El docente registra las evaluaciones |
+| `family_user` → `family_child` | 1:N | Un padre tiene 1 o más vínculos a hijos |
+| `child` → `family_child` | 1:N | Un hijo puede tener 1 o más representantes |
+| `family_user` ↔ `child` | **N:M** | Relación muchos-a-muchos vía `family_child` (multi-hijo) |
+| `family_user` → `homework_status` | 1:N | Un padre marca actividades de sus hijos |
+| `child` → `homework_status` | 1:N | Cada hijo tiene su propio registro de actividades |
+| `activity` → `homework_status` | 1:N | Cada actividad tiene un status por hijo |
 
----
+### Tablas externas (solo lectura, las crea el otro equipo)
 
-## 📋 Tablas — Quién gestiona qué
+> No las creamos, solo hacemos `SELECT` sobre ellas.
 
-| Tabla | Módulo que la crea | Módulo Familia |
-|-------|-------------------|----------------|
-| `institution` | Admin | Solo lectura |
-| `teacher` | Admin/Docente | Solo lectura |
-| `student_group` | Docente | Solo lectura |
-| `child` | Docente | Solo lectura |
-| `unit` | Docente | Solo lectura |
-| `activity` | Docente | Solo lectura |
-| `rubric_criteria` | Admin | Solo lectura |
-| `evaluation` | Docente | **Solo lectura** (RF-F02, RF-F03) |
-| **`family_user`** | **Familia** | **CRUD** (registro, perfil) |
-| **`family_child`** | **Admin/Familia** | **Lectura** (vínculo padre↔hijo) |
-| **`homework_status`** | **Familia** | **Crear/Actualizar** (RF-F04) |
+| Tabla externa | Campos que consultamos | Para qué |
+|---------------|----------------------|----------|
+| `child` | `id, name, age, group_id` | RF-F01: Perfil del hijo |
+| `student_group` | `id, name, teacher_id` | RF-F01: Grupo asignado |
+| `teacher` | `id, name` | RF-F01: Docente responsable |
+| `unit` | `id, title, scope, weeks, status, group_id` | RF-F01: Unidades activas |
+| `activity` | `id, title, description, type, deadline, unit_id` | RF-F04: Actividades de casa |
+| `rubric_criteria` | `id, key, name, icon, description` | RF-F02: Criterios de rúbrica |
+| `evaluation` | `child_id, criteria_id, level, observation, evaluated_at` | RF-F02/F03: Progreso e historial |
 
 ---
 
