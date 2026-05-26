@@ -1,6 +1,107 @@
 import { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 
+// ===== Rich Text Renderer =====
+function parseInlineMarkdown(text) {
+  // Parse **bold** and *italic* inline markdown
+  const parts = [];
+  let remaining = text;
+  let key = 0;
+
+  while (remaining.length > 0) {
+    // Bold: **text**
+    const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
+    // Italic: *text*
+    const italicMatch = remaining.match(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/);
+
+    let firstMatch = null;
+    let matchType = null;
+
+    if (boldMatch && italicMatch) {
+      if (boldMatch.index <= italicMatch.index) {
+        firstMatch = boldMatch;
+        matchType = 'bold';
+      } else {
+        firstMatch = italicMatch;
+        matchType = 'italic';
+      }
+    } else if (boldMatch) {
+      firstMatch = boldMatch;
+      matchType = 'bold';
+    } else if (italicMatch) {
+      firstMatch = italicMatch;
+      matchType = 'italic';
+    }
+
+    if (!firstMatch) {
+      parts.push(<span key={key++}>{remaining}</span>);
+      break;
+    }
+
+    // Text before match
+    if (firstMatch.index > 0) {
+      parts.push(<span key={key++}>{remaining.substring(0, firstMatch.index)}</span>);
+    }
+
+    if (matchType === 'bold') {
+      parts.push(<strong key={key++}>{firstMatch[1]}</strong>);
+    } else {
+      parts.push(<em key={key++}>{firstMatch[1]}</em>);
+    }
+
+    remaining = remaining.substring(firstMatch.index + firstMatch[0].length);
+  }
+
+  return parts;
+}
+
+function RichTextBlock({ block }) {
+  switch (block.type) {
+    case 'paragraph':
+      return <p className="rt-paragraph">{parseInlineMarkdown(block.text)}</p>;
+    case 'heading':
+      return <h4 className="rt-heading">{block.text}</h4>;
+    case 'step':
+      return (
+        <div className="rt-step">
+          <span className="rt-step-number">{block.number}</span>
+          <span className="rt-step-text">{parseInlineMarkdown(block.text)}</span>
+        </div>
+      );
+    case 'tip':
+      return (
+        <div className="rt-callout rt-callout--tip">
+          <span className="rt-callout-icon">💡</span>
+          <span className="rt-callout-text">{parseInlineMarkdown(block.text)}</span>
+        </div>
+      );
+    case 'important':
+      return (
+        <div className="rt-callout rt-callout--important">
+          <span className="rt-callout-icon">⚠️</span>
+          <span className="rt-callout-text">{parseInlineMarkdown(block.text)}</span>
+        </div>
+      );
+    default:
+      return <p>{block.text}</p>;
+  }
+}
+
+function RichDescription({ description }) {
+  if (!description) return null;
+  // Backward compat: if description is a plain string
+  if (typeof description === 'string') {
+    return <p className="modal-description">{description}</p>;
+  }
+  return (
+    <div className="rich-description">
+      {description.map((block, i) => (
+        <RichTextBlock key={i} block={block} />
+      ))}
+    </div>
+  );
+}
+
 const DAYS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
 function MiniCalendar({ homework }) {
@@ -193,7 +294,7 @@ export default function Dashboard() {
 
               <div className="modal-section">
                 <h4 className="modal-section-title">📋 Instrucciones</h4>
-                <p className="modal-description">{selectedHw.description}</p>
+                <RichDescription description={selectedHw.description} />
               </div>
 
               <div className="modal-section">

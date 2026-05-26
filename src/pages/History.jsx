@@ -1,9 +1,9 @@
 import { useApp } from '../context/AppContext';
 
 const LEVEL_CONFIG = {
-  iniciado: { label: 'I', color: '#E53935', bg: '#FFEBEE', full: 'Iniciado' },
-  en_proceso: { label: 'EP', color: '#FB8C00', bg: '#FFF3E0', full: 'En Proceso' },
-  logrado: { label: 'L', color: '#43A047', bg: '#E8F5E9', full: 'Logrado' },
+  iniciado: { label: 'I', color: '#DC2626', bg: '#FEE2E2', full: 'Iniciado' },
+  en_proceso: { label: 'EP', color: '#EAB308', bg: '#FEF9C3', full: 'En Proceso' },
+  logrado: { label: 'L', color: '#16A34A', bg: '#DCFCE7', full: 'Logrado' },
 };
 
 const SHORT_CRITERIA = {

@@ -1,9 +1,9 @@
 import { useApp } from '../context/AppContext';
 
 const LEVEL_CONFIG = {
-  iniciado: { label: 'Iniciado', color: '#E53935', bg: '#FFEBEE', emoji: '🔴' },
-  en_proceso: { label: 'En Proceso', color: '#FB8C00', bg: '#FFF3E0', emoji: '🟡' },
-  logrado: { label: 'Logrado', color: '#43A047', bg: '#E8F5E9', emoji: '🟢' },
+  iniciado: { label: 'Iniciado', color: '#DC2626', bg: '#FEE2E2', emoji: '🔴' },
+  en_proceso: { label: 'En Proceso', color: '#EAB308', bg: '#FEF9C3', emoji: '🟡' },
+  logrado: { label: 'Logrado', color: '#16A34A', bg: '#DCFCE7', emoji: '🟢' },
 };
 
 export default function Progress() {

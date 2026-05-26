@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 
 export default function MobileNav() {
-  const { isLoggedIn, selectedChildId, childrenList, logout } = useApp();
+  const { isLoggedIn, selectedChildId, childrenList, logout, theme, toggleTheme } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -37,6 +37,10 @@ export default function MobileNav() {
       >
         <span className="mobile-nav-icon">📈</span>
         <span className="mobile-nav-label">Historial</span>
+      </button>
+      <button className="mobile-nav-item" onClick={toggleTheme}>
+        <span className="mobile-nav-icon">{theme === 'light' ? '🌙' : '☀️'}</span>
+        <span className="mobile-nav-label">{theme === 'light' ? 'Oscuro' : 'Claro'}</span>
       </button>
       <button className="mobile-nav-item" onClick={handleLogout}>
         <span className="mobile-nav-icon">🚪</span>

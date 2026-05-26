@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 
 export default function Sidebar() {
-  const { isLoggedIn, parentName, childName, currentChild, childrenList, selectedChildId, logout } = useApp();
+  const { isLoggedIn, parentName, childName, currentChild, childrenList, selectedChildId, logout, theme, toggleTheme } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -78,6 +78,12 @@ export default function Sidebar() {
 
       {/* Spacer */}
       <div className="sidebar-spacer" />
+
+      {/* Theme Toggle */}
+      <button className="sidebar-theme-toggle" onClick={toggleTheme} title={theme === 'light' ? 'Modo Oscuro' : 'Modo Claro'}>
+        <span className="sidebar-nav-icon">{theme === 'light' ? '🌙' : '☀️'}</span>
+        <span className="sidebar-nav-text">{theme === 'light' ? 'Modo Oscuro' : 'Modo Claro'}</span>
+      </button>
 
       {/* Logout */}
       <button className="sidebar-logout" onClick={handleLogout}>

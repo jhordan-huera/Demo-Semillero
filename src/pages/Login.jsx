@@ -6,7 +6,7 @@ export default function Login() {
   const [cedula, setCedula] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login, selectChild } = useApp();
+  const { login, selectChild, theme, toggleTheme } = useApp();
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
@@ -33,6 +33,13 @@ export default function Login() {
 
   return (
     <div className="login-page">
+      <button
+        className="login-theme-toggle"
+        onClick={toggleTheme}
+        title={theme === 'light' ? 'Modo Oscuro' : 'Modo Claro'}
+      >
+        {theme === 'light' ? '🌙' : '☀️'}
+      </button>
       <form className="login-card" onSubmit={handleSubmit}>
         <div className="login-icon">🎓</div>
         <h1 className="login-title">Bienvenido</h1>
